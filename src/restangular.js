@@ -465,8 +465,8 @@
           what,
           etag,
           operation) {
-          const params = angular.extend(callParams || {}, this.config.defaultRequestParams.common);
-          const headers = angular.extend(callHeaders || {}, this.config.defaultHeaders);
+          const params = angular.extend({}, this.config.defaultRequestParams.common || {}, callParams || {});
+          const headers = angular.extend({}, this.config.defaultHeaders || {}, callHeaders || {});
 
           if (etag) {
             if (!config.isSafe(operation)) {

@@ -14,7 +14,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 /**
  * Restful Resources service for AngularJS apps
- * @version v1.5.2 - 2016-10-31 * @link https://github.com/mgonto/restangular
+ * @version v1.5.2 - 2017-01-05 * @link https://github.com/mgonto/restangular
  * @author Martin Gontovnikas <martin@gon.to>
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -86,7 +86,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       **/
       config.plainByDefault = config.plainByDefault || false;
       object.setPlainByDefault = function (value) {
-        config.plainByDefault = value === true ? true : false;
+        config.plainByDefault = value === true || false;
         return this;
       };
 
@@ -276,7 +276,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       config.isValidId = function (elemId) {
-        return '' !== elemId && !!angular.isDefined(elemId) && !(elemId === null);
+        return '' !== elemId && !!angular.isDefined(elemId) && elemId !== null;
       };
 
       config.setUrlToElem = function (elem, url) {
@@ -536,8 +536,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
           key: 'resource',
           value: function resource(current, $http, localHttpConfig, callHeaders, callParams, what, etag, operation) {
-            var params = angular.extend(callParams || {}, this.config.defaultRequestParams.common);
-            var headers = angular.extend(callHeaders || {}, this.config.defaultHeaders);
+            var params = angular.extend({}, this.config.defaultRequestParams.common || {}, callParams || {});
+            var headers = angular.extend({}, this.config.defaultHeaders || {}, callHeaders || {});
 
             if (etag) {
               if (!config.isSafe(operation)) {
@@ -979,8 +979,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           var requestMethods = { get: customFunction, delete: customFunction };
           angular.forEach(['put', 'patch', 'post'], function (name) {
-            requestMethods[name] = function (operation, elem, path, params, headers) {
-              return customFunction.bind(this)(operation, path, params, headers, elem);
+            requestMethods[name] = function (operation, elm, path, params, headers) {
+              return customFunction.bind(this)(operation, path, params, headers, elm);
             };
           });
           angular.forEach(requestMethods, function (requestFunc, name) {
@@ -1220,7 +1220,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           var isOverrideOperation = config.isOverridenMethod(operation);
           if (isOverrideOperation) {
             callOperation = 'post';
-            callHeaders = angular.extend(callHeaders, { 'X-HTTP-Method-Override': operation === 'remove' ? 'DELETE' : operation.toUpperCase() });
+            callHeaders = angular.extend(callHeaders, {
+              'X-HTTP-Method-Override': operation === 'remove' ? 'DELETE' : operation.toUpperCase()
+            });
           } else if (config.jsonp && callOperation === 'get') {
             callOperation = 'jsonp';
           }

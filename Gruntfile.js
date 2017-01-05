@@ -119,7 +119,7 @@ module.exports = function (grunt) {
   grunt.registerTask('default', ['build']);
 
   // Build task.
-  grunt.registerTask('build', ['bowerInstall', 'karma:build', 'concat', 'babel', 'uglify', 'zip']);
+  grunt.registerTask('build', ['bowerInstall', 'concat', 'babel', 'uglify', 'zip']);
 
   grunt.registerTask('test', ['karma:build']);
 

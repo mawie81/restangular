@@ -1,6 +1,6 @@
 /**
  * Restful Resources service for AngularJS apps
- * @version v1.5.2 - 2016-10-31 * @link https://github.com/mgonto/restangular
+ * @version v1.5.2 - 2017-01-05 * @link https://github.com/mgonto/restangular
  * @author Martin Gontovnikas <martin@gon.to>
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -14,7 +14,7 @@
     // No global export, Restangular will register itself as Angular.js module
     factory(angular);
   }
-}(function (angular) {
+} (function (angular) {
   const restangular = angular.module('restangular', []);
 
   restangular.provider('Restangular', function () {
@@ -67,9 +67,9 @@
       **/
       config.plainByDefault = config.plainByDefault || false;
       object.setPlainByDefault = function (value) {
-        config.plainByDefault = value === true ? true : false;
+        config.plainByDefault = value === true || false;
         return this;
-      }
+      };
 
       config.withHttpValues = (httpLocalConfig, obj) => angular.extend(obj, httpLocalConfig, config.defaultHttpFields);
 
@@ -240,7 +240,7 @@
 
       config.getIdFromElem = elem => config.getFieldFromElem(config.restangularFields.id, elem);
 
-      config.isValidId = elemId => '' !== elemId && !!angular.isDefined(elemId) && !(elemId === null);
+      config.isValidId = elemId => '' !== elemId && !!angular.isDefined(elemId) && elemId !== null;
 
       config.setUrlToElem = function (elem, url) {
         config.setFieldToElem(config.restangularFields.selfLink, elem, url);
@@ -471,8 +471,8 @@
           what,
           etag,
           operation) {
-          const params = angular.extend(callParams || {}, this.config.defaultRequestParams.common);
-          const headers = angular.extend(callHeaders || {}, this.config.defaultHeaders);
+          const params = angular.extend({}, this.config.defaultRequestParams.common || {}, callParams || {});
+          const headers = angular.extend({}, this.config.defaultHeaders || {}, callHeaders || {});
 
           if (etag) {
             if (!config.isSafe(operation)) {
@@ -583,7 +583,8 @@
           // Add default parameters
           value.params = angular.extend({}, value.params, localConfig.defaultRequestParams[value.method.toLowerCase()]);
           // We don't want the ? if no params are there
-          if (!value.params || !(angular.isObject(value.params)) || !(angular.isArray(value.params) ? value.params : Object.keys(value.params)).length) {
+          if (!value.params || !(angular.isObject(value.params)) ||
+            !(angular.isArray(value.params) ? value.params : Object.keys(value.params)).length) {
             delete value.params;
           }
 
@@ -891,14 +892,14 @@
         function addCustomOperation(elem) {
           elem[config.restangularFields.customOperation] = customFunction.bind(elem);
 
-          var requestMethods = { get: customFunction, delete: customFunction };
+          const requestMethods = { get: customFunction, delete: customFunction };
           angular.forEach(['put', 'patch', 'post'], function (name) {
-            requestMethods[name] = function (operation, elem, path, params, headers) {
-              return customFunction.bind(this)(operation, path, params, headers, elem);
+            requestMethods[name] = function (operation, elm, path, params, headers) {
+              return customFunction.bind(this)(operation, path, params, headers, elm);
             };
           });
           angular.forEach(requestMethods, (requestFunc, name) => {
-            var callOperation = name === 'delete' ? 'remove' : name;
+            const callOperation = name === 'delete' ? 'remove' : name;
             angular.forEach(['do', 'custom'], alias => elem[alias + name.toUpperCase()] = requestFunc.bind(elem, callOperation));
           });
           elem[config.restangularFields.customGETLIST] = fetchFunction.bind(elem);
@@ -1166,7 +1167,9 @@
           const isOverrideOperation = config.isOverridenMethod(operation);
           if (isOverrideOperation) {
             callOperation = 'post';
-            callHeaders = angular.extend(callHeaders, { 'X-HTTP-Method-Override': operation === 'remove' ? 'DELETE' : operation.toUpperCase() });
+            callHeaders = angular.extend(callHeaders, {
+              'X-HTTP-Method-Override': operation === 'remove' ? 'DELETE' : operation.toUpperCase()
+            });
           } else if (config.jsonp && callOperation === 'get') {
             callOperation = 'jsonp';
           }
